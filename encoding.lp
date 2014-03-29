@@ -38,23 +38,6 @@ prod(R, F, P*S) :-
 subc_size(R, S) :- prod(R, MAXF, S), col_num(R, MAXF).
 subc_cell_size(R, C * CS / S) :- subc_size(R, S), ts(R, C), cube_size(CS).
 
-
-%%%%%%%%%%%%
-% generate
-
-% map virtual server to real server
-% generate an assignment
-assign(V,RS) : rs(RS) :- vs_id(V).
-
-% TODO: I don't think this condition has to be true
-:- not assign(_, RS), rs(RS).
-
-
-%%%%%%%%%%%%
-% helper
-
-% compute workload per relation
-
 % get the work load that each real server gets from a relation
 % projection on sub_cube
 subc_dim_base(R, N, 1) :- r(R), col_num(R, N).
@@ -72,6 +55,23 @@ subcid(V, R, F, LC + (C * DBASE) ) :-
 
 % map virtual server to cell of a relation's sub-cube
 map_vs_subcid(V, R, SUBCID) :- subcid(V, R, 1, SUBCID).
+
+
+%%%%%%%%%%%%
+% generate
+
+% map virtual server to real server
+% generate an assignment
+assign(V,RS) : rs(RS) :- vs_id(V).
+
+% TODO: I don't think this condition has to be true
+:- not assign(_, RS), rs(RS).
+
+
+%%%%%%%%%%%%
+% helper
+
+% compute workload per relation
 
 % map real server to cell of a relation's sub-cube
 map_rs_subcid(RS, R, SUBCID) :- assign(V, RS), map_vs_subcid(V ,R ,SUBCID).
@@ -96,16 +96,19 @@ wl_per_server(RS, WL) :- wl_per_server(RS, r, WL).
 % the max workload per server
 max(N) :- N = #max{ WL: wl_per_server(_, WL) }.
 
+
 %%%%%%%%%%%%
 % symmetry breakers
 
 % fix first server
 :- not assign(0, 1).
 
+
 %%%%%%%%%%%%
 % optimize
 
 #minimize { N: max(N) }.
+
 
 %%%%%%%%%%%%
 % print
