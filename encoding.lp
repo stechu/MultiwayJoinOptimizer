@@ -6,15 +6,15 @@ rs(1..p).
 
 % generate virtual server
 
-% cell cordinate base
+% cell coordinate base
 % the coordinate base at I th dimension is: d_0 * d_1 * ... d_I
 cell_co_base(0,1).
 cell_co_base(I, J*S) :- cell_co_base(I-1, J), d_size(I-1,S).
 
-cube_size (CS) :- cell_co_base(d, CS).
+cube_size(CS) :- cell_co_base(d, CS).
 
 % id of virtual server
-vs_id(0..N-1) :- cell_co_base(d,N).
+vs_id(V) :- V = 0..CS-1, cube_size(CS).
 
 % coordinate of virtual server, in the format of V: virtual server id,
 % D: dimension, C: coordinate
@@ -26,6 +26,7 @@ vs_co(V, D, C):-
 %compute sub-cube size
 % number of columns for each relation
 col_num(R, N) :- N = #count { r(R, F, D): r(R, F, D) }, r(R, _, _).
+
 % compute sub-cube size using induction
 prod(R, 0, 1) :- r(R, _, _).
 prod(R, F, P*S) :-
@@ -41,6 +42,8 @@ subc_cell_size(R, (C * CS) / S) :- subc_size(R, S), ts(R, C), cube_size(CS).
 % map virtual server to real server
 % generate an assignment
 assign(V,RS) : rs(RS) :- vs_id(V).
+
+% TODO: I don't think this condition has to be true
 :- not assign(_, RS), rs(RS).
 
 

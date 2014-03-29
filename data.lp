@@ -1,4 +1,4 @@
-% physical servers
+% real servers
 #const p = 4.
 
 % number of dimensions
