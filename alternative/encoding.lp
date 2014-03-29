@@ -39,7 +39,7 @@ cell_size(R,S) :- S = SS*CS/NP, size(R,SS), cube_size(CS), num_parts(R,NP).
 % generate
 
 % assign voxel to physical servers
-1 { assign(V,P) : phys(P) } 1 :- voxel(V,D,C).
+assign(V,RS) : phys(RS) :- virt(V).
 
 %%%%%%%%%%%%
 % test
