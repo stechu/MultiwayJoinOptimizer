@@ -24,6 +24,6 @@ r(3,1,0).
 r(3,2,2).
 
 % size of tables - generate by python
-ts(1, 500).
-ts(2, 100).
-ts(3, 1000).
+ts(1, 5).
+ts(2, 1).
+ts(3, 10).

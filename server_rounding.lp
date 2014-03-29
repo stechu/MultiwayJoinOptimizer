@@ -1,4 +1,5 @@
 %-----------------------generate virtual server ------------------------
+cube_size (CS) :- vs_size_temp(MAXD, CS), d_n(MAXD).
 % virtual server
 vs_size_temp(0,1).
 vs_size_temp(I, J*S) :- vs_size_temp(I-1, J), d_size(I-1,S), I != 0.
@@ -7,7 +8,7 @@ vs_id(0..N-1) :- vs_size_temp(K,N), d_n(K).
 % coordinate of virtual server, in the format of V: virtual server id,
 % D: dimension, C: coornidate
 vs_co(V, D, C):- 
-    C = (V \ P) / B,
+    C = ( V \ P) / B,
     vs_id(V), d_size(D, _ ), 
     vs_size_temp(D, B), vs_size_temp(D+1, P).
 
@@ -30,7 +31,7 @@ prod(X, Y, P*S) :-
     prod(X, Y-1, P), r(X, Y, Z), d_size(Z, S), 
     Y <= N, col_num(X, N).
 sub_cube_size(R, S) :- prod(R, MAXF, S), col_num(R, MAXF). 
-sub_cube_share(R, C / S) :- sub_cube_size(R, S), ts(R, C). 
+sub_cube_share(R, (C * CS) / S) :- sub_cube_size(R, S), ts(R, C), cube_size(CS). 
 
 
 %-------------------- compute workload per relation --------------------
@@ -65,23 +66,11 @@ wl_per_server(RS, WL) :- wl_per_server_tmp(RS, N, WL),rnum(N).
 max(N) :- 
     N = #max{ WL: wl_per_server(_, WL) }.
 
-%proj_debug(11, R, F, D, C) :- proj_vs_subc(11, R, F, D, C).
-%subc_temp_debug(11, R, F, SUBC) :- subc_temp(11, R, F, SUBC).
-%map_v_subcid_debug(11, R, SUBC) :- map_v_subcid(11, R, SUBC).
-%map_r_v_debug(S, R) :- map_r_v(S, R), S = 3.
-%vs_co_debug(V, D, C) :- vs_co(V, D, C), V = 10.
+% break symmetry
+:- not map_r_v(1, 0).
+:- not map_r_v(2, 1).
 
 #minimize {  N: max(N) }.
 
 % ------------------------- get the workload ---------------------------
-%#show vs_size_temp/2.
-%#show map_r_v/2.
-%#show vs_co/3.
-%#show proj_debug/5.
-%#show subc_temp_debug/4.
-%#show map_v_subcid_debug/3.
-% #show map_v_subcid/3.
-%#show vs_co_debug/3.
-%#show sub_cube_cover/3.
-%#show wl_per_server/2.
-%#show max/1.
+#show map_r_v/2.
