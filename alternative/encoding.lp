@@ -55,7 +55,7 @@ matching_voxel(P,R,VV) :- sc_voxel(V,R,VV), assign(V,P).
 cost(P,R,C) :- C = CC*S, CC = { matching_voxel(P,R,VV) }, cell_size(R,S), phys(P), rel(R).
 cost(P,C) :- C = #sum { CC,cost(P,R,CC) : cost(P,R,CC) }, phys(P).
 
-maxcost(MC) :- MC = #max { C : cost(P,C) }.
+maxcost(MC) :- MC = #max { C : cost(_,C) }.
 
 %%%%%%%%%%%%
 % constraints that help the solver
