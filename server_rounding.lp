@@ -19,8 +19,6 @@ vs_co(V, D, C):-
 %-------------------- map virtual server to real server-----------------
 % generate an assignment
 map_r_v(RS, V):rs(RS) :- vs_id(V).
-% each server should get at least one virtual server
-:- not map_r_v(RS, _), rs(RS).
 
 
 %-------------------- compute sub-cube size ----------------------------
@@ -68,6 +66,7 @@ max(N) :-
 
 % break symmetry
 :- not map_r_v(1, 0).
+:- not map_r_v(RS, 1), RS > 3, rs(RS).
 
 #minimize {  N: max(N) }.
 
