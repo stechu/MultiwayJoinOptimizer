@@ -1,25 +1,29 @@
-%-----------------------generate virtual server ---------------------------
-cube_size (CS) :- cell_co_base(MAXD, CS), d_n(MAXD).
+%%%%%%%%%%%%
+% helpers, everything static
+
+% real servers
+rs(1..p).
+
+% generate virtual server
+
 % cell cordinate base
 % the coordinate base at I th dimension is: d_0 * d_1 * ... d_I
 cell_co_base(0,1).
 cell_co_base(I, J*S) :- cell_co_base(I-1, J), d_size(I-1,S).
+
+cube_size (CS) :- cell_co_base(d, CS).
+
 % id of virtual server
-vs_id(0..N-1) :- cell_co_base(K,N), d_n(K).
+vs_id(0..N-1) :- cell_co_base(d,N).
+
 % coordinate of virtual server, in the format of V: virtual server id,
-% D: dimension, C: coornidate
+% D: dimension, C: coordinate
 vs_co(V, D, C):- 
     C = ( V \ P) / B, vs_id(V),  
     cell_co_base(D, B), cell_co_base(D+1, P).
 
 
-%-------------------- map virtual server to real server--------------------
-% generate an assignment
-assign(V,RS) : rs(RS) :- vs_id(V).
-:- not assign(_, RS), rs(RS).
-
-
-%-------------------- compute sub-cube size -------------------------------
+%compute sub-cube size
 % number of columns for each relation
 col_num(R, N) :- N = #count { r(R, F, D): r(R, F, D) }, r(R, _, _).
 % compute sub-cube size using induction
@@ -31,7 +35,20 @@ subc_size(R, S) :- prod(R, MAXF, S), col_num(R, MAXF).
 subc_cell_size(R, (C * CS) / S) :- subc_size(R, S), ts(R, C), cube_size(CS).
 
 
-%-------------------- compute workload per relation -----------------------
+%%%%%%%%%%%%
+% generate
+
+% map virtual server to real server
+% generate an assignment
+assign(V,RS) : rs(RS) :- vs_id(V).
+:- not assign(_, RS), rs(RS).
+
+
+%%%%%%%%%%%%
+% helper
+
+% compute workload per relation
+
 % get the work load that each real server gets from a relation
 % projection on sub_cube
 subc_dim_base(R, N, 1) :- r(R, _, _), col_num(R, N).
@@ -63,14 +80,19 @@ wl_per_server(RS, R, WL+W) :-
     wl_on_relation(RS, R, W),
     rs(RS),
     wl_per_server(RS, R-1, WL).
-wl_per_server(RS, WL) :- wl_per_server(RS, N, WL),rnum(N).
+wl_per_server(RS, WL) :- wl_per_server(RS, r, WL).
 % break symmetry
 :- not assign(0, 1).
 % the max workload per server
 max(N) :- 
     N = #max{ WL: wl_per_server(_, WL) }.
 
-#minimize {  N: max(N) }.
+%%%%%%%%%%%%
+% optimize
 
-% ------------------------- print----------------------------------------
+#minimize { N: max(N) }.
+
+%%%%%%%%%%%%
+% print
+
 #show assign/2.

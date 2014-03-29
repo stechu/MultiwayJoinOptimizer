@@ -1,16 +1,16 @@
+% physical servers
+#const p = 4.
+
 % number of dimensions
-d_n(3).
+#const d = 3.
 
 % size of each dimension
 d_size(0,2).
 d_size(1,2).
 d_size(2,3).
 
-% real servers
-rs(1..4).
-
 % joins
-rnum(3).
+#const r = 3.
 
 r(1,1,0). r(1,2,1).
 r(2,1,1). r(2,2,2).
