@@ -1,5 +1,5 @@
 % real servers
-#const p = 4.
+#const p = 6.
 
 % number of dimensions
 #const d = 3.

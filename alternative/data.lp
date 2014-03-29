@@ -1,5 +1,5 @@
 % physical machines
-#const p = 4.
+#const p = 6.
 
 % dimensions
 #const n = 3.
