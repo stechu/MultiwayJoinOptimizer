@@ -36,7 +36,7 @@ prod(R, F, P*S) :-
     prod(R, F-1, P), r(R, F, D), d_size(D, S), 
     F <= N, col_num(R, N).
 subc_size(R, S) :- prod(R, MAXF, S), col_num(R, MAXF). 
-subc_cell_size(R, (C * CS) / S) :- subc_size(R, S), ts(R, C), cube_size(CS).
+subc_cell_size(R, C * CS / S) :- subc_size(R, S), ts(R, C), cube_size(CS).
 
 
 %%%%%%%%%%%%
