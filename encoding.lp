@@ -28,7 +28,7 @@ vs_co(V, D, C):-
 
 %compute sub-cube size
 % number of columns for each relation
-col_num(R, N) :- N = #count { r(R, F, D): r(R, F, D) }, r(R).
+col_num(R, N) :- N ={ r(R, F, D) }, r(R).
 
 % compute sub-cube size using induction
 prod(R, 0, 1) :- r(R).
