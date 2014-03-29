@@ -65,7 +65,7 @@ map_vs_subcid(V, R, SUBCID) :- subcid(V, R, 1, SUBCID).
 assign(V,RS) : rs(RS) :- vs_id(V).
 
 % TODO: I don't think this condition has to be true
-:- not assign(_, RS), rs(RS).
+% :- not assign(_, RS), rs(RS).
 
 
 %%%%%%%%%%%%

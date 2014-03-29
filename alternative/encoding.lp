@@ -61,13 +61,14 @@ workload(P,-1,0) :- phys(P).
 workload(P,R,WL+C) :- cost(P,R,C), phys(P), workload(P,R-1,WL).
 workload(P,WL) :- workload(P,r-1,WL).
 
-maxwl(MC) :- MC = #max { C : workload(_,C) }.
+maxwl(MWL) :- MWL = #max { WL : workload(_,WL) }.
+%% maxwl(0,MWL) :- workload(0,MWL).
+%% maxwl(P,MWL) :- workload(P,WL), maxwl(P-1,MWL), MWL >= WL.
+%% maxwl(P,WL) :- workload(P,WL), maxwl(P-1,MWL), MWL < WL.
+%% maxwl(MWL) :- maxwl(p-1,MWL).
 
 %%%%%%%%%%%%
 % constraints that help the solver
-
-% we need at least the number of parts subcube voxels or otherwise data got lost
-%:- num_parts(R, NP), NP < #sum { N : count(P,R,N) }, rel(R).
 
 % fix one server to break symmetry
 :- not assign(0,0).
