@@ -52,8 +52,9 @@ assign(V,RS) : phys(RS) :- virt(V).
 
 % cost of assignment for relations
 matching_voxel(P,R,VV) :- sc_voxel(V,R,VV), assign(V,P).
-cost(P,R,C) :- C = CC*S, CC = { matching_voxel(P,R,VV) }, cell_size(R,S), phys(P), rel(R).
-cost(P,C) :- C = #sum { CC,cost(P,R,CC) : cost(P,R,CC) }, phys(P).
+cost(P,1,C) :- C = N*S, N = { matching_voxel(P,R,VV) }, cell_size(R,S), phys(P), rel(R).
+cost(P,R,C) :- C = N*S + CCC, N = { matching_voxel(P,R,VV) }, cell_size(R,S), rel(R), cost(P,R-1,CCC).
+cost(P,C) :- cost(P,r,C).
 
 maxcost(MC) :- MC = #max { C : cost(_,C) }.
 
