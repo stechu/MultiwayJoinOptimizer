@@ -68,7 +68,6 @@ max(N) :-
 
 % break symmetry
 :- not map_r_v(1, 0).
-:- not map_r_v(2, 1).
 
 #minimize {  N: max(N) }.
 
