@@ -39,47 +39,41 @@ cell_size(R,S) :- S = SS*CS/NP, size(R,SS), cube_size(CS), num_parts(R,NP).
 % generate
 
 % assign voxel to physical servers
-assign(V,RS) : phys(RS) :- virt(V).
+1 { assign(V,RS) : phys(RS) } 1 :- virt(V).
+
 
 %%%%%%%%%%%%
-% test
-
-% for testing purposes: each phys server should be used
-%:- phys(P), not assign(_,P).
-
-%%%%%%%%%%%%
-% helper
+% define
 
 % subcube cells that are used because of the assignments
 matching_voxel(P,R,VV) :- sc_voxel(V,R,VV), assign(V,P).
-% workload for relations
-cost(P,R,C) :- C = N*S, N = { matching_voxel(P,R,VV) }, phys(P), rel(R), cell_size(R,S).
+work_element(P,S,R,VV) :- matching_voxel(P,R,VV), rel(R), cell_size(R,S).
 
-% sum up the costs
-% workload(P,WL) :- WL = #sum { C,cost(P,R,C) : cost(P,R,C) }, phys(P).
-workload(P,-1,0) :- phys(P).
-workload(P,R,WL+C) :- cost(P,R,C), phys(P), workload(P,R-1,WL).
-workload(P,WL) :- workload(P,r-1,WL).
+dominates(P,Q) :-
+  phys(P),
+  phys(Q),
+  P != Q,
+  #sum { S,R,VV: work_element(P,S,R,VV);
+        -S,R,VV: work_element(Q,S,R,VV) } >= 1.
 
-maxwl(MWL) :- MWL = #max { WL : workload(_,WL) }.
-%% maxwl(0,MWL) :- workload(0,MWL).
-%% maxwl(P,MWL) :- workload(P,WL), maxwl(P-1,MWL), MWL >= WL.
-%% maxwl(P,WL) :- workload(P,WL), maxwl(P-1,MWL), MWL < WL.
-%% maxwl(MWL) :- maxwl(p-1,MWL).
+
+dominant(P) :- phys(P); not dominates(Q,P):Q!=P,phys(Q).
+bottleneck(P) :- phys(P), P = #min { Pi:dominant(Pi) }.
+
+bottleneck_workload(S,R,VV) :- bottleneck(P), work_element(P,S,R,VV).
+
 
 %%%%%%%%%%%%
-% constraints that help the solver
+% symmetry breaking
+:- phys(P;Q), P < Q, dominates(Q,P).
 
-% fix one server to break symmetry
-:- not assign(0,0).
-:- assign(1,P), P > 1, phys(P).
 
 %%%%%%%%%%%%
 % optimize
 
-#minimize { MC : maxwl(MC) }.
-
-%%%%%%%%%%%%
-% print
+:~ bottleneck_workload(S,R,VV). [S,R,VV]
 
 #show assign/2.
+#show dominates/2.
+#show dominant/1.
+#show bottleneck/1.
