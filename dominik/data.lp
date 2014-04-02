@@ -15,9 +15,9 @@ dim(2,3).
 
 % sizes of relations
 % size(R,S)
-size(0,500).
-size(1,100).
-size(2,1000).
+size(0,5).
+size(1,1).
+size(2,10).
 
 % dimensions of relations with the information which dimension it is
 % rel(R,N,D)
