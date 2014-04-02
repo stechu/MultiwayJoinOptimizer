@@ -25,12 +25,12 @@ num_dims(R,N) :- rel(R), N = { rel(R,_,D) }.
 
 % number of parts for lower dimensional cubes for a relation,
 % also helper for getting the index of subcube cell
-num_parts(R,D+1,1,N) :- num_dims(R,N), rel(R), rel(R,N-1,D).
-num_parts(R,D,L*LL,M) :- num_parts(R,_,LL,M+1), dim(D,L), rel(R,M,D).
-num_parts(R,NP) :- num_parts(R,_,NP,0).
+num_parts(R,1,N) :- num_dims(R,N), rel(R), rel(R,N-1,D).
+num_parts(R,L*LL,M) :- num_parts(R,LL,M+1), dim(D,L), rel(R,M,D).
+num_parts(R,NP) :- num_parts(R,NP,0).
 
 % subcube cell/ subcube voxel
-sc_voxel(V,R,VV) :- VV = #sum{ C*L : voxel(V,D,C), num_parts(R,D,_,M), num_parts(R,_,L,M+1)}, rel(R), virt(V).
+sc_voxel(V,R,VV) :- VV = #sum{C*L : voxel(V,D,C), num_parts(R,_,M), rel(R,D,M), num_parts(R,L,M+1)}, rel(R), virt(V).
 
 % normalized relation size, size of a subcube cell
 cell_size(R,S) :- S = SS*CS/NP, size(R,SS), cube_size(CS), num_parts(R,NP).
