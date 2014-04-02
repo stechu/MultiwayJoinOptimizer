@@ -30,7 +30,7 @@ num_parts(R,L*LL,M) :- num_parts(R,LL,M+1), dim(D,L), rel(R,M,D).
 num_parts(R,NP) :- num_parts(R,NP,0).
 
 % subcube cell/ subcube voxel
-sc_voxel(V,R,VV) :- VV = #sum{C*L : voxel(V,D,C), num_parts(R,_,M), rel(R,D,M), num_parts(R,L,M+1)}, rel(R), virt(V).
+sc_voxel(V,R,VV) :- VV = #sum{C*L : voxel(V,D,C), num_parts(R,_,M), rel(R,M,D), num_parts(R,L,M+1)}, rel(R), virt(V).
 
 % normalized relation size, size of a subcube cell
 cell_size(R,S) :- S = SS*CS/NP, size(R,SS), cube_size(CS), num_parts(R,NP).
@@ -73,7 +73,10 @@ bottleneck_workload(S,R,VV) :- bottleneck(P), work_element(P,S,R,VV).
 
 :~ bottleneck_workload(S,R,VV). [S,R,VV]
 
-#show assign/2.
-#show dominates/2.
-#show dominant/1.
-#show bottleneck/1.
+%#show assign/2.
+%#show dominates/2.
+%#show dominant/1.
+%#show bottleneck/1.
+#show sc_voxel/3.
+#show num_parts/3.
+#show voxel/3.

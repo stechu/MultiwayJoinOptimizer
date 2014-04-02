@@ -17,12 +17,12 @@ cell_co_base(I, J*S) :- cell_co_base(I-1, J), d_size(I-1,S).
 cube_size(CS) :- cell_co_base(d, CS).
 
 % id of virtual server
-vs_id(V) :- V = 0..CS-1, cube_size(CS).
+virt(V) :- V = 0..CS-1, cube_size(CS).
 
 % coordinate of virtual server, in the format of V: virtual server id,
 % D: dimension, C: coordinate
 vs_co(V, D, C):-
-    C = ( V \ P) / B, vs_id(V),
+    C = ( V \ P) / B, virt(V),
     cell_co_base(D, B), cell_co_base(D+1, P).
 
 
@@ -36,7 +36,7 @@ prod(R, F, P*S) :-
     prod(R, F-1, P), r(R, F, D), d_size(D, S),
     F <= N, col_num(R, N).
 subc_size(R, S) :- prod(R, MAXF, S), col_num(R, MAXF).
-subc_cell_size(R, C * CS / S) :- subc_size(R, S), ts(R, C), cube_size(CS).
+cell_size(R, C * CS / S) :- subc_size(R, S), ts(R, C), cube_size(CS).
 
 % get the work load that each real server gets from a relation
 % projection on sub_cube
@@ -47,68 +47,44 @@ subc_dim_base(R, F-1, DS*S ) :- subc_dim_base(R, F, DS), r(R, F, D), d_size(D, S
 vs_subc_co(V, R, F, D, C) :- r(R, F, D), vs_co(V, D, C).
 
 % compute sub-cube cell id
-subcid(V, R, N+1, 0) :- vs_id(V), r(R), col_num(R, N).
+subcid(V, R, N+1, 0) :- virt(V), r(R), col_num(R, N).
 subcid(V, R, F, LC + (C * DBASE) ) :-
     vs_subc_co(V, R, F, D, C),
     subc_dim_base(R, F, DBASE),
     subcid(V, R, F+1, LC).
-
-% map virtual server to cell of a relation's sub-cube
-map_vs_subcid(V, R, SUBCID) :- subcid(V, R, 1, SUBCID).
-
 
 %%%%%%%%%%%%
 % generate
 
 % map virtual server to real server
 % generate an assignment
-assign(V,RS) : rs(RS) :- vs_id(V).
+assign(V,RS) : rs(RS) :- virt(V).
+1 { assign(V,RS) : rs(RS) } 1 :- virt(V).
 
-% TODO: I don't think this condition has to be true
-% :- not assign(_, RS), rs(RS).
+% map virtual server to cell of a relation's sub-cube
+sc_voxel(V, R, SUBCID) :- subcid(V, R, 1, SUBCID).
 
-
-%%%%%%%%%%%%
-% helper
-
-% compute workload per relation
-
-% map real server to cell of a relation's sub-cube
-map_rs_subcid(RS, R, SUBCID) :- assign(V, RS), map_vs_subcid(V ,R ,SUBCID).
-
-% the number of sub-cube cells a real server covers
-sub_cube_cover(RS, R, N) :-
-    N = { map_rs_subcid(RS, R, SUBC) },
-    rs(RS), r(R).
-
-% the work load of a server from a relation
-wl_on_relation(RS, R, N * SHARE) :- sub_cube_cover(RS, R, N), subc_cell_size(R, SHARE).
-
-% the total work load of a server from all relations
-% wl_per_server(RS, WL) :- WL = #sum { W,wl_on_relation(RS, R, W): wl_on_relation(RS, R, W) }, rs(RS).
-wl_per_server(RS, 0, 0) :- rs(RS).
-wl_per_server(RS, R, WL+W) :-
-    wl_on_relation(RS, R, W),
-    rs(RS),
-    wl_per_server(RS, R-1, WL).
-wl_per_server(RS, WL) :- wl_per_server(RS, r, WL).
-
-% the max workload per server
-max(N) :- N = #max{ WL: wl_per_server(_, WL) }.
-
+% assign voxel to physical servers
+assign(V,RS) : rs(RS) :- virt(V).
 
 %%%%%%%%%%%%
-% symmetry breakers
+% define
 
-% fix first server
-:- not assign(0, 1).
+% subcube cells that are used because of the assignments
+work_element(RS,S,(R,VV)) :- sc_voxel(V,R,VV), assign(V,RS), cell_size(R,S).
 
+dominates_first(Q) :-
+  rs(Q),
+  Q != 0,
+  #sum { S,E: work_element(Q,S,E);
+        -S,E: work_element(1,S,E) } > 0.
+
+:- dominates_first(Q).
 
 %%%%%%%%%%%%
 % optimize
 
-#minimize { N: max(N) }.
-
+:~ work_element(1,S,E). [S,E]
 
 %%%%%%%%%%%%
 % print
