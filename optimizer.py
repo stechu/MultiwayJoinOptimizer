@@ -135,22 +135,22 @@ def getDimSizesBFS(numberOfServers, childSizes, joinFieldMap):
     return (minWorkLoad, optimalDimSizes)
 
 
-# get optimal fracitonal dimension size
+# get optimal fracitonal dim size, see P9 in http://arxiv.org/abs/1401.1872
 def optDimFracSize(numberOfServers, childSizes, joinFieldMap):
     # get relation -> variable mapping
     relVarMap = dict()
-    for flist in joinFieldMap:
+    for idx, flist in enumerate(joinFieldMap):
         for (r, v) in flist:
             if r in relVarMap:
-                relVarMap[r].append(v)
+                relVarMap[r].append(idx)
             else:
-                relVarMap[r] = [v]
+                relVarMap[r] = [idx]
     # LP problem formulation
-    shareExIndices = range(0, len(childSizes))
-    logRelSize = [math.log(s, numberOfServers) for s in childSizes]
     prob = LpProblem("Hyper Cube Size", LpMinimize)
+    # transform relations sizes to log scale
+    logRelSize = [math.log(s, numberOfServers) for s in childSizes]
     # define share size exponents
-    shareExVars = LpVariable.dicts("e", shareExIndices, 0, 1)
+    shareExVars = LpVariable.dicts("e", range(0, len(joinFieldMap)), 0, 1)
     # objective function
     obj = LpVariable("obj", 0, None)
     prob += lpSum(obj)
@@ -160,5 +160,10 @@ def optDimFracSize(numberOfServers, childSizes, joinFieldMap):
     for idx, val in enumerate(logRelSize):
         prob += lpSum([shareExVars[var] for var in relVarMap[idx]]) + obj >=\
             logRelSize[idx]
-    print prob
-    return 0
+    prob.solve()
+    answer = dict()
+    for v in prob.variables():
+        answer[v.name] = v.value()
+    #print answer
+    return (answer["obj"], [answer["e_{}".format(i)]
+                            for i in range(0, len(joinFieldMap))])
