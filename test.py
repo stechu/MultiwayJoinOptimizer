@@ -32,5 +32,11 @@ class TestOpimizerFunctions(unittest.TestCase):
             optimizer.getDimSizesDFS(64, childSizes, joinFieldMap)
         )
 
+    def testOptFracDimSize(self):
+        joinFieldMap = [[[0, 1], [1, 0]], [[1, 1], [2, 0]],
+                        [[2, 1], [3, 0]]]
+        childSizes = [36, 72, 64, 36]
+        optimizer.optDimFracSize(64, childSizes, joinFieldMap)
+
 if __name__ == '__main__':
     unittest.main()

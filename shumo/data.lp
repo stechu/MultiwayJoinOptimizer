@@ -5,7 +5,7 @@
 #const d = 3.
 
 % size of each dimension
-d_size(0,2).
+d_size(0,4).
 d_size(1,2).
 d_size(2,2).
 

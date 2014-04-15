@@ -47,15 +47,24 @@ assign(V,RS) : phys(RS) :- virt(V).
 
 % subcube cells that are used because of the assignments
 work_element(P,S,(R,VV)) :- sc_voxel(V,R,VV), assign(V,P), cell_size(R,S).
+%work_element(P,0,(R,VV)) :- not assign(_,P), phys(P), sc_voxel(_,R,VV).
 
-dominates_first(Q) :-
-  phys(Q),
-  Q != 0,
-  #sum { S,E: work_element(Q,S,E);
-        -S,E: work_element(0,S,E) } > 0.
 
-:- dominates_first(Q).
+%dominates_first(Q) :-
+%  phys(Q),
+%  Q != 0,
+%  #sum { S,E: work_element(Q,S,E);
+%        -S,E: work_element(0,S,E) } > 0.
 
+dominates_next(Q) :-
+    phys(Q),
+    Q > 0,
+    #sum { S,E: work_element(Q,S,E);
+           -S,E: work_element(Q-1,S,E) }>0.
+
+
+:- dominates_next(Q).
+%:- phys(Q), Q>0, work_load(Q, W1), work_load(Q-1, W2), W1>W2.
 %%%%%%%%%%%%
 % optimize
 

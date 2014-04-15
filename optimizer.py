@@ -3,6 +3,8 @@
 import json
 import argparse
 import collections
+from pulp import *
+import math
 
 #parse args
 parser = argparse.ArgumentParser(
@@ -133,10 +135,30 @@ def getDimSizesBFS(numberOfServers, childSizes, joinFieldMap):
     return (minWorkLoad, optimalDimSizes)
 
 
-# entrance
-def main():
-    print "hello world"
-
-
-if __name__ == "__main__":
-    main()
+# get optimal fracitonal dimension size
+def optDimFracSize(numberOfServers, childSizes, joinFieldMap):
+    # get relation -> variable mapping
+    relVarMap = dict()
+    for flist in joinFieldMap:
+        for (r, v) in flist:
+            if r in relVarMap:
+                relVarMap[r].append(v)
+            else:
+                relVarMap[r] = [v]
+    # LP problem formulation
+    shareExIndices = range(0, len(childSizes))
+    logRelSize = [math.log(s, numberOfServers) for s in childSizes]
+    prob = LpProblem("Hyper Cube Size", LpMinimize)
+    # define share size exponents
+    shareExVars = LpVariable.dicts("e", shareExIndices, 0, 1)
+    # objective function
+    obj = LpVariable("obj", 0, None)
+    prob += lpSum(obj)
+    # constraint: sum of share exponents is at most 1
+    prob += lpSum(shareExVars) <= 1
+    # constraints: work load on each relation is smaller than obj
+    for idx, val in enumerate(logRelSize):
+        prob += lpSum([shareExVars[var] for var in relVarMap[idx]]) + obj >=\
+            logRelSize[idx]
+    print prob
+    return 0
