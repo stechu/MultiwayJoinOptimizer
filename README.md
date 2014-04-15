@@ -1,4 +1,4 @@
-MultiwayJoinWorkloadEstimator
+MultiwayJoinOptimizer
 =============================
 # Required Libraries
 * GLPK: GNU Linear Programming Kit, the solver used for solving LP
