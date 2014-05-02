@@ -116,16 +116,16 @@ def get_dim_size_dfs(num_server, child_sizes, join_field_map):
 
 
 # using standard bfs
-def getDimSizesBFS(num_server, child_sizes, join_field_map):
+def get_dim_sizes_bfs(num_server, child_sizes, join_field_map):
     visited = set()
     toVisit = collections.deque()
     toVisit.append(tuple([1 for i in join_field_map]))
-    minWorkLoad = sum(child_sizes)
+    min_work_load = sum(child_sizes)
     while len(toVisit) > 0:
         dim_sizes = toVisit.pop()
-        if workLoad(dim_sizes, child_sizes, join_field_map) < minWorkLoad:
-            minWorkLoad = workLoad(dim_sizes, child_sizes, join_field_map)
-            optimalDimSizes = dim_sizes
+        if workLoad(dim_sizes, child_sizes, join_field_map) < min_work_load:
+            min_work_load = workLoad(dim_sizes, child_sizes, join_field_map)
+            opt_dim_sizes = dim_sizes
         visited.add(dim_sizes)
         for i, d in enumerate(dim_sizes):
             new_dim_sizes = dim_sizes[0:i] +\
@@ -133,7 +133,7 @@ def getDimSizesBFS(num_server, child_sizes, join_field_map):
             if product_not_greater(new_dim_sizes, num_server)\
                and new_dim_sizes not in visited:
                 toVisit.append(new_dim_sizes)
-    return (minWorkLoad, optimalDimSizes)
+    return (min_work_load, opt_dim_sizes)
 
 
 # get optimal fracitonal dim size, see P9 in http://arxiv.org/abs/1401.1872
