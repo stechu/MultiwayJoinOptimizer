@@ -87,4 +87,18 @@ class ShuffleAssignment(object):
             l.append(0)
             wcnf.append(l)
         # soft constraints: penalty on work load on each server
+        for i, size in enumerate(self.child_sizes):
+            joined_ranges = [range(0, self.hc_dim_sizes[dim])
+                             for dim in self.r_index[i]]
+            for rs in range(1, self.num_servers+1):
+                for subc_co in itertools.product(*joined_ranges):
+                    l = [-self.normalized_voxel_sizes[i]]
+                    vox = {
+                        "rel": i,
+                        "dims": subc_co
+                    }
+                    for vs in self.voxel_to_vs(vox):
+                        l.append(vs)
+                    l.append(0)
+                    wcnf.append(l)
         return wcnf

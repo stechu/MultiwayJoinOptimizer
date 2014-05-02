@@ -67,11 +67,6 @@ class TestOpimizerFunctions(unittest.TestCase):
         self.assertEqual(model.coordinate_to_vs((9, 19, 9)), 2000)
         self.assertEqual(model.normalized_voxel_sizes, [10000, 5000, 5000])
         print len(model.get_wcnf())
-        vox = {
-            "rel": 0,
-            "dims": [0, 0]
-        }
-        print model.voxel_to_vs(vox)
 
 
 if __name__ == '__main__':
