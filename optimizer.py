@@ -76,7 +76,7 @@ def product_not_greater(dims, k):
 
 
 # compute work load give a hyper cube size assignment
-def workLoad(dim_sizes, child_sizes, join_field_map):
+def workload(dim_sizes, child_sizes, join_field_map):
     if len(dim_sizes) != len(join_field_map):
         raise Exception("dim_sizes must match the length of join_field_map")
     # build reverse index: relation->joinField
@@ -98,10 +98,10 @@ def workLoad(dim_sizes, child_sizes, join_field_map):
 def enum_dim_sizes(visited, dim_sizes, num_server,
                    child_sizes, join_field_map):
     visited.add(dim_sizes)
-    yield (workLoad(dim_sizes, child_sizes, join_field_map), dim_sizes)
+    yield (workload(dim_sizes, child_sizes, join_field_map), dim_sizes)
     for i, d in enumerate(dim_sizes):
-        new_dim_sizes = dim_sizes[0:i]
-        + tuple([dim_sizes[i]+1]) + dim_sizes[i+1:]
+        new_dim_sizes = dim_sizes[0:i] + tuple([dim_sizes[i]+1])
+        new_dim_sizes += dim_sizes[i+1:]
         if product_not_greater(new_dim_sizes, num_server)\
            and new_dim_sizes not in visited:
             for x in enum_dim_sizes(visited, new_dim_sizes, num_server,
@@ -123,8 +123,8 @@ def get_dim_sizes_bfs(num_server, child_sizes, join_field_map):
     min_work_load = sum(child_sizes)
     while len(toVisit) > 0:
         dim_sizes = toVisit.pop()
-        if workLoad(dim_sizes, child_sizes, join_field_map) < min_work_load:
-            min_work_load = workLoad(dim_sizes, child_sizes, join_field_map)
+        if workload(dim_sizes, child_sizes, join_field_map) < min_work_load:
+            min_work_load = workload(dim_sizes, child_sizes, join_field_map)
             opt_dim_sizes = dim_sizes
         visited.add(dim_sizes)
         for i, d in enumerate(dim_sizes):
