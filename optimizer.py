@@ -41,30 +41,6 @@ def get_coordinates(coordinates, dim_sizes, coordinate, current_idx):
                             cp_coordinates, current_idx+1)
 
 
-# compute hyper cube partition given
-def hyper_cube_partition(dim_sizes, hashed_dims):
-    coordinates = []
-    get_coordinates(coordinates, dim_sizes, [], 0)
-    cell_partition = dict()
-    for coordinate in coordinates:
-        cell_number = 0
-        count = 1
-        for dim in hashed_dims:
-            cell_number += coordinate[dim]
-            if count != len(dim_sizes):
-                cell_number *= dim_sizes[dim]
-            count += 1
-        if cell_number in cell_partition:
-            cell_partition[cell_number].append(
-                coordinate_to_worker_id(coordinate, dim_sizes))
-        else:
-            cell_partition[cell_number] = [
-                coordinate_to_worker_id(coordinate, dim_sizes)]
-            #raise Exception("Error!")
-
-    return [v[1] for v in sorted(cell_partition.items())]
-
-
 # return false if the product is greater than k
 def product_not_greater(dims, k):
     r = 1
@@ -115,7 +91,7 @@ def get_dim_size_dfs(num_server, child_sizes, join_field_map):
                               child_sizes, join_field_map))
 
 
-# using standard bfs
+# using bfs to get optimal dimension sizes
 def get_dim_sizes_bfs(num_server, child_sizes, join_field_map):
     visited = set()
     toVisit = collections.deque()
