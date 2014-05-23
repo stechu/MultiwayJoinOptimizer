@@ -78,6 +78,7 @@ class ShuffleAssignment(object):
         """ print problem model in WCNF (Weighted Conjunctive Normal Format)
         """
         max_size = reduce(mul, self.child_sizes, 1)
+        num_lit = self.num_servers * self.num_vs
         wcnf = []
         # hard constraints: each virtual server must be assigned
         for vs in range(1, self.num_vs+1):
@@ -100,5 +101,6 @@ class ShuffleAssignment(object):
                     for vs in self.voxel_to_vs(vox):
                         l.append(vs)
                     l.append(0)
+                    l.append("rs:{} rel:{} co:{}".format(rs, i, subc_co))
                     wcnf.append(l)
-        return wcnf
+        return (num_lit, wcnf)
